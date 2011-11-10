@@ -13,6 +13,8 @@ class WordFinder
       end
     end
 
+    Dir.mkdir("profiles") unless File.directory?("profiles")
+    
     printer = RubyProf::GraphPrinter.new(result)
     printer.print(File.new("profiles/#{method}.txt", "w+"))
   end
