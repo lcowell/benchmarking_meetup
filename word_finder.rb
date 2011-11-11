@@ -3,23 +3,23 @@ require 'ruby-prof'
 require 'strscan'
 
 class WordFinder
-  def self.search_and_profile(method, term_count = 5, debug = true)
+  def self.search_and_profile(method, term_count = 5)
     if class_variable_defined?(:@@terms)
       if @@terms.length != term_count
-        puts "regenerating terms" if debug
+        puts "regenerating terms" if $DEBUG
         @@terms = random_terms(term_count)
       end
     else
-      puts "generating terms" if debug
+      puts "generating terms" if $DEBUG
       @@terms = random_terms(term_count)
     end
     
     result = RubyProf.profile do
       f = new
-      puts "===starting #{method}===" if debug
+      puts "===starting #{method}===" if $DEBUG
       @@terms.each do |term|
         result = f.send(method, term)
-        puts "#{term}: #{result}" if debug
+        puts "#{term}: #{result}" if $DEBUG
       end
     end
 
@@ -55,9 +55,8 @@ class WordFinder
   end
   
   def search5(term)
-    raise "error"
     unless @data_hash
-      puts "generating hash"
+      puts "generating hash" if $DEBUG
       @data_hash = load_data.split("\n").inject({}) {|acc,word| acc[word.to_s] = true; acc  }
     end
     !!@data_hash[term]
@@ -74,6 +73,12 @@ class WordFinder
   end
   
   def self.random_terms(term_count)
-    load_data.split("\n").sample(term_count)
+    data = load_data.split("\n")
+    begin
+      data.sample(term_count)
+    rescue NoMethodError => e
+      puts "no sample method #{e}" if $DEBUG
+      term_count.times.map { data.choice }
+    end
   end
 end
