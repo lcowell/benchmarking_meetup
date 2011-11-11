@@ -1,6 +1,6 @@
 require 'ruby-prof'
 
-count = 10_000_000
+count = 100
 
 @data = count.times.inject([]) {|acc| acc << rand(10) }
 
